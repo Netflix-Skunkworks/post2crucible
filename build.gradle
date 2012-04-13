@@ -1,0 +1,47 @@
+// Establish version and status
+ext.releaseVersion = '1.6.0'
+ext.githubProjectName = project.name
+group = 'com.netflix.post2crucible'
+
+buildscript {
+  repositories {
+    mavenCentral()
+    //maven { url 'http://repo.smokejumperit.com' }
+    flatDir { dirs '../../RobertFischer/gradle-plugins/build/libs' }
+  }
+  dependencies {
+    classpath 'com.smokejumperit:gradle-plugins:0.8.2'
+  }
+}
+
+//apply from: file('gradle/convention.gradle')
+//apply from: file('gradle/check.gradle')
+//apply from: file('gradle/netflix-oss.gradle')
+//apply from: file('gradle/license.gradle') // Waiting for re-release
+//apply from: file('gradle/release.gradle') // Not fully tested
+
+apply plugin: 'sjit.onejar'
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.netflix.postreview.Main'
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://maven.atlassian.com/content/groups/public/' }  // for the atlassian connector commons library
+}
+
+//artifacts {
+//    archives jar
+//    archives sourcesJar
+//    archives javadocJar
+//}
+
+dependencies {
+    compile 'commons-cli:commons-cli:1.2'
+    compile 'commons-httpclient:commons-httpclient:3.1'
+    compile 'com.googlecode.java-diff-utils:diffutils:1.2.1'
+    compile 'com.atlassian.connector:atlassian-connector-commons:4.0.0-mc2'
+}
