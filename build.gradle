@@ -44,4 +44,6 @@ dependencies {
     compile 'commons-httpclient:commons-httpclient:3.1'
     compile 'com.googlecode.java-diff-utils:diffutils:1.2.1'
     compile 'com.atlassian.connector:atlassian-connector-commons:4.0.0-mc2'
+
+    runtime 'jaxen:jaxen:1.1.1'
 }
