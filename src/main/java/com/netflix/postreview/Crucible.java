@@ -171,10 +171,11 @@ public class Crucible {
         review.setRepoName(depot);
         String name = nameFromDescription(descr);
         if (name != null) {
-            review.setName(name + " @" + changeId);
+            name += " @" + changeId;
         } else {
-            review.setName("Review of pending change @" + changeId);
+            name = "Review of pending change @" + changeId;
         }
+        review.setName(name.length() <= MAX_DESCRIPTION ? name : name.substring(0, MAX_DESCRIPTION));
         review.setCreator(new User(user, null));  // seems to be required
         review.setDescription(descr);
         review.setAllowReviewerToJoin(true);
