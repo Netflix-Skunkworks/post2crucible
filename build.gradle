@@ -14,7 +14,7 @@ buildscript {
   }
 }
 
-//apply from: file('gradle/convention.gradle')
+apply from: file('gradle/convention.gradle')
 //apply from: file('gradle/check.gradle')
 //apply from: file('gradle/netflix-oss.gradle')
 //apply from: file('gradle/license.gradle') // Waiting for re-release
@@ -33,11 +33,11 @@ repositories {
     maven { url 'https://maven.atlassian.com/content/groups/public/' }  // for the atlassian connector commons library
 }
 
-//artifacts {
-//    archives jar
-//    archives sourcesJar
-//    archives javadocJar
-//}
+artifacts {
+    archives jar
+    archives sourcesJar
+    archives javadocJar
+}
 
 dependencies {
     compile 'commons-cli:commons-cli:1.2'
