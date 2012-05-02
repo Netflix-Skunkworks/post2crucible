@@ -31,7 +31,7 @@ public class Main {
                 .addOption(OptionBuilder.withLongOpt("url").hasArg().withArgName("url")
                         .withDescription("Fisheye/Crucible base URL. (default: http://crucible.netflix.com)").create())
                 .addOption(OptionBuilder.withLongOpt("user").hasArg().withArgName("name")
-                        .withDescription("LDAP user. (default: $USER)").create('u'))
+                    .withDescription("LDAP user. (default: $USER)").create('u'))
                 .addOption(OptionBuilder.withLongOpt("passwd").hasArg().withArgName("passwd")
                         .withDescription("LDAP password.").create('p'))
                 .addOption(OptionBuilder.withLongOpt("login")
@@ -39,36 +39,39 @@ public class Main {
 
                 // Perforce connection & context options
                 .addOption(OptionBuilder.withLongOpt("p4port").hasArg().withArgName("port")
-                        .withDescription("Perforce server port. (default: perforce:1666)").create())
+                    .withDescription("Perforce server port. (default: perforce:1666)").create())
                 .addOption(OptionBuilder.withLongOpt("p4passwd").hasArg().withArgName("passwd")
-                        .withDescription("Perforce password. (default: $P4PASSWD if needed)").create())
+                    .withDescription("Perforce password. (default: $P4PASSWD if needed)").create())
                 .addOption(OptionBuilder.withLongOpt("p4client").hasArg().withArgName("clientname")
                         .withDescription("Perforce client. (default: $P4CLIENT)").create())
 
                 // Git connection & context options
                 .addOption(OptionBuilder.withLongOpt("git").hasArg().withArgName("path")
-                        .withDescription("Path to git executable - default is /opt/local/bin/git").create('g'))
+                    .withDescription("Path to git executable - default is /opt/local/bin/git").create('g'))
                 .addOption(OptionBuilder.withLongOpt("dir").hasArg().withArgName("path")
-                        .withDescription("Project directory - default is current working directory").create('d'))
+                    .withDescription("Project directory - default is current working directory").create('d'))
 
                  // Perforce & Git change / commit options
                 .addOption(OptionBuilder.withLongOpt("change").hasArg().withArgName("id")
-                        .withDescription("Pending P4/Git change (Git default is HEAD^) to review.").create('c'))
+                    .withDescription("Pending P4/Git change (Git default is HEAD^) to review.").create('c'))
                 .addOption(OptionBuilder.withLongOpt("endchange").hasArg().withArgName("id")
-                        .withDescription("The ending Git commit (default is HEAD)").create('e'))
+                    .withDescription("The ending Git commit (default is HEAD)").create('e'))
 
                 // Code review options
                 .addOption(OptionBuilder.withLongOpt("nothing")
-                        .withDescription("Do not actually create or update the review.").create('n'))
+                    .withDescription("Do not actually create or update the review.").create('n'))
                 .addOption(OptionBuilder.withLongOpt("review").hasArg().withArgName("key")
-                        .withDescription("Existing Crucible review to update. (default: find based on changeId in name)").create('r'))
+                    .withDescription("Existing Crucible review to update. (default: find based on changeId in name)").create('r'))
                 .addOption(OptionBuilder.withLongOpt("project").hasArg().withArgName("key")
                         .withDescription("Crucible project to associate review with. (default: 'CR')").create('j'))
                 .addOption(OptionBuilder.withLongOpt("patch")
                         .withDescription("Use a universal diff patch upload instead of full file pairs.").create())
 
                 .addOption(OptionBuilder.withLongOpt("open")
-                        .withDescription("Open a browser to new review. (Mac only)").create('o'));
+                    .withDescription("Open a browser to new review. (Mac only)").create('o'))
+
+                .addOption(OptionBuilder.withLongOpt("new")
+                    .withDescription("Force a new review to be created").create());
         }
         static final Options options = initOptions();
 
@@ -97,6 +100,7 @@ public class Main {
         final String project;
         final boolean patch;
         final boolean open;
+        final boolean forceNewReview;
 
         public AppOptions(String[] args) throws ParseException, IOException {
             final CommandLine line = new GnuParser().parse(options, args);
@@ -121,6 +125,7 @@ public class Main {
             project = line.getOptionValue("project", "CR");
             patch = line.hasOption("patch");
             open = line.hasOption("open");
+            forceNewReview = line.hasOption("new");
         }
 
         public static void printHelp() {
@@ -224,7 +229,7 @@ public class Main {
      * Locates an existing review for the give changeId.
      */
     private static BasicReview locateReview(AppOptions opts, Crucible cru, String changeId) throws RemoteApiException {
-        return opts.reviewKey != null ? cru.getReview(opts.reviewKey) : cru.findReview(changeId, opts.user);
+        return opts.forceNewReview ? null : (opts.reviewKey != null ? cru.getReview(opts.reviewKey) : cru.findReview(changeId, opts.user));
     }
 
     private static BasicReview postLocalChangePatch(Change change, AppOptions opts, Crucible cru, BasicReview review) throws Exception {
