@@ -10,7 +10,7 @@ buildscript {
     flatDir { dirs '../../RobertFischer/gradle-plugins/build/libs' }
   }
   dependencies {
-    classpath 'com.smokejumperit:gradle-plugins:0.8.2'
+    classpath 'com.smokejumperit:gradle-plugins:0.8.2+cq1'
   }
 }
 

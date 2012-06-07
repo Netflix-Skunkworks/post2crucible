@@ -35,6 +35,9 @@ public class Runner {
         Process process = start(args);
         String string = readAllString(new BufferedReader(new InputStreamReader(process.getInputStream())));
         close(process);
+        if (process.exitValue() != 0) {
+            throw new IOException("Non-zero exit code " + process.exitValue() + ":\n" + string);
+        }
         return string;
     }
 

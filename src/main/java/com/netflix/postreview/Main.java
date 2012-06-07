@@ -29,13 +29,13 @@ public class Main {
             return new Options()
                 // Crucible connection options
                 .addOption(OptionBuilder.withLongOpt("url").hasArg().withArgName("url")
-                        .withDescription("Fisheye/Crucible base URL. (default: http://crucible.netflix.com)").create())
+                    .withDescription("Fisheye/Crucible base URL. (default: http://crucible.netflix.com)").create())
                 .addOption(OptionBuilder.withLongOpt("user").hasArg().withArgName("name")
                     .withDescription("LDAP user. (default: $USER)").create('u'))
                 .addOption(OptionBuilder.withLongOpt("passwd").hasArg().withArgName("passwd")
-                        .withDescription("LDAP password.").create('p'))
+                    .withDescription("LDAP password.").create('p'))
                 .addOption(OptionBuilder.withLongOpt("login")
-                        .withDescription("Force (re)login, creating or refreshing the login token.").create())
+                    .withDescription("Force (re)login, creating or refreshing the login token.").create())
 
                 // Perforce connection & context options
                 .addOption(OptionBuilder.withLongOpt("p4port").hasArg().withArgName("port")
@@ -43,19 +43,19 @@ public class Main {
                 .addOption(OptionBuilder.withLongOpt("p4passwd").hasArg().withArgName("passwd")
                     .withDescription("Perforce password. (default: $P4PASSWD if needed)").create())
                 .addOption(OptionBuilder.withLongOpt("p4client").hasArg().withArgName("clientname")
-                        .withDescription("Perforce client. (default: $P4CLIENT)").create())
+                    .withDescription("Perforce client. (default: $P4CLIENT)").create())
 
                 // Git connection & context options
                 .addOption(OptionBuilder.withLongOpt("git").hasArg().withArgName("path")
-                    .withDescription("Path to git executable - default is /opt/local/bin/git").create('g'))
+                    .withDescription("Path to git executable. (default: /opt/local/bin/git)").create('g'))
                 .addOption(OptionBuilder.withLongOpt("dir").hasArg().withArgName("path")
-                    .withDescription("Project directory - default is current working directory").create('d'))
+                    .withDescription("Project directory. (default: current working directory)").create('d'))
 
                  // Perforce & Git change / commit options
                 .addOption(OptionBuilder.withLongOpt("change").hasArg().withArgName("id")
-                    .withDescription("Pending P4/Git change (Git default is HEAD^) to review.").create('c'))
+                    .withDescription("Pending P4/Git change (Git default: HEAD^) to review.").create('c'))
                 .addOption(OptionBuilder.withLongOpt("endchange").hasArg().withArgName("id")
-                    .withDescription("The ending Git commit (default is HEAD)").create('e'))
+                    .withDescription("The ending Git commit (default: HEAD)").create('e'))
 
                 // Code review options
                 .addOption(OptionBuilder.withLongOpt("nothing")
@@ -63,15 +63,15 @@ public class Main {
                 .addOption(OptionBuilder.withLongOpt("review").hasArg().withArgName("key")
                     .withDescription("Existing Crucible review to update. (default: find based on changeId in name)").create('r'))
                 .addOption(OptionBuilder.withLongOpt("project").hasArg().withArgName("key")
-                        .withDescription("Crucible project to associate review with. (default: 'CR')").create('j'))
+                    .withDescription("Crucible project to associate review with. (default: 'CR')").create('j'))
                 .addOption(OptionBuilder.withLongOpt("patch")
-                        .withDescription("Use a universal diff patch upload instead of full file pairs.").create())
+                    .withDescription("Use a universal diff patch upload instead of full file pairs.").create())
 
                 .addOption(OptionBuilder.withLongOpt("open")
                     .withDescription("Open a browser to new review. (Mac only)").create('o'))
 
                 .addOption(OptionBuilder.withLongOpt("new")
-                    .withDescription("Force a new review to be created").create());
+                    .withDescription("Force a new review to be created.").create());
         }
         static final Options options = initOptions();
 
@@ -178,8 +178,7 @@ public class Main {
             }
             System.out.println(change);
         } catch (Exception e) {
-            System.out.println("\nFatal: Change " + opts.changeId + " not found.");
-            System.out.println("  Maybe a Perforce problem, check $P4CLIENT: " + e);
+            System.out.println("\nFatal: " + e.getMessage());
             System.exit(-1);
             return;
         }

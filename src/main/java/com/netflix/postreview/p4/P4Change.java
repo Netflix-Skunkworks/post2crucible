@@ -22,9 +22,12 @@ public class P4Change implements Change {
     public P4Change(P4Runner p4, String changeId) throws IOException, P4Exception {
         this.p4 = p4;
         changelist = Changelist.invokeWith(p4, changeId);
+        if (changelist == null) throw new P4Exception("Changelist not found: " + changeId, null);
     }
 
-    @Override public String toString() { return changelist.toString(); }
+    @Override public String toString() {
+        return changelist != null ? changelist.toString() : "change: INVALID\n";
+    }
 
     public boolean isSubmitted() { return changelist.status == Changelist.Status.SUBMITTED; }
 

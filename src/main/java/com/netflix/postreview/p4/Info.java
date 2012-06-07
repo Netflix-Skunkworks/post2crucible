@@ -14,17 +14,17 @@ public class Info extends P4Command {
     public final String clientName;
     public final String clientRoot;
 
-    private Info(String clientName, String clientRoot) {
-        this.clientName = clientName;
-        this.clientRoot = clientRoot;
+    public static Info invokeWith(Runner runner) throws IOException {
+        return fromZtag(runner.execAndReadString(command()));
     }
 
     @Override public String toString() {
         return "Client: " + clientName + " Root: " + clientRoot;
     }
 
-    public static Info invokeWith(Runner runner) throws IOException {
-        return fromZtag(runner.execAndReadString(command()));
+    private Info(String clientName, String clientRoot) {
+        this.clientName = clientName;
+        this.clientRoot = clientRoot;
     }
 
     private static String[] command() {

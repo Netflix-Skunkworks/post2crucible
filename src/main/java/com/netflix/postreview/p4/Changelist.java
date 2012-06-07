@@ -26,15 +26,8 @@ public class Changelist extends P4Command {
     public final List<FileEntry> files;
     public final List<JobEntry> jobs;
 
-    public Changelist(String cl, String user, String client, String time, String status, String desc, List<FileEntry> files, List<JobEntry> jobs) {
-        this.changeNumber = parseInt0(cl);
-        this.user = user;
-        this.client = client;
-        this.time = new Date(Long.parseLong(time) * 1000);
-        this.status = Status.fromString(status);
-        this.description = desc;
-        this.files = Collections.unmodifiableList(files);
-        this.jobs = Collections.unmodifiableList(jobs);
+    public static Changelist invokeWith(Runner runner, String cl) throws IOException, P4Exception {
+        return fromZtag(runner.execAndReadString(commandFor(cl)));
     }
 
     @Override public String toString() {
@@ -57,10 +50,6 @@ public class Changelist extends P4Command {
             }
         }
         return sb.toString();
-    }
-
-    public static Changelist invokeWith(Runner runner, String cl) throws IOException, P4Exception {
-        return fromZtag(runner.execAndReadString(commandFor(cl)));
     }
 
     /**
@@ -180,6 +169,17 @@ public class Changelist extends P4Command {
         @Override public String toString() {
             return "" + job + " " + status + " " + description;
         }
+    }
+
+    private Changelist(String cl, String user, String client, String time, String status, String desc, List<FileEntry> files, List<JobEntry> jobs) {
+        this.changeNumber = parseInt0(cl);
+        this.user = user;
+        this.client = client;
+        this.time = new Date(Long.parseLong(time) * 1000);
+        this.status = Status.fromString(status);
+        this.description = desc;
+        this.files = Collections.unmodifiableList(files);
+        this.jobs = Collections.unmodifiableList(jobs);
     }
 
     private static String[] commandFor(String cl) {
