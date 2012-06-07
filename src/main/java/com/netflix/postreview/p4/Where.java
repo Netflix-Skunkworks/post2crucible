@@ -15,7 +15,7 @@ public class Where extends P4Command {
     public final String clientPath;
     public final String localPath;
 
-    public static Where invokeWith(Runner runner, String path) throws IOException, P4Exception {
+    public static Where invokeWith(Runner runner, String path) throws IOException {
         return fromZtag(runner.execAndReadString(commandFor(path)));
     }
 
@@ -33,7 +33,7 @@ public class Where extends P4Command {
         return new String[] { "p4", "-ztag", "where", path };
     }
 
-    private static Where fromZtag(String ztag) throws P4Exception {
+    private static Where fromZtag(String ztag) {
         Map<String, String> zmap = ztagMap(ztag);
         if (zmap.size() == 0) {
             return null;

@@ -26,7 +26,7 @@ public class Changelist extends P4Command {
     public final List<FileEntry> files;
     public final List<JobEntry> jobs;
 
-    public static Changelist invokeWith(Runner runner, String cl) throws IOException, P4Exception {
+    public static Changelist invokeWith(Runner runner, String cl) throws IOException {
         return fromZtag(runner.execAndReadString(commandFor(cl)));
     }
 
@@ -186,7 +186,7 @@ public class Changelist extends P4Command {
         return new String[] { "p4", "-ztag", "describe", cl };
     }
 
-    private static Changelist fromZtag(String ztag) throws P4Exception {
+    private static Changelist fromZtag(String ztag) {
         Map<String, String> zmap = ztagMap(ztag);
         if (zmap.size() == 0) {
             return null;

@@ -19,10 +19,10 @@ public class P4Change implements Change {
     P4Runner p4;
     Changelist changelist;
 
-    public P4Change(P4Runner p4, String changeId) throws IOException, P4Exception {
+    public P4Change(P4Runner p4, String changeId) throws IOException {
         this.p4 = p4;
         changelist = Changelist.invokeWith(p4, changeId);
-        if (changelist == null) throw new P4Exception("Changelist not found: " + changeId, null);
+        if (changelist == null) throw new IOException("Changelist not found: " + changeId);
     }
 
     @Override public String toString() {
