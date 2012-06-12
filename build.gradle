@@ -3,24 +3,11 @@ ext.releaseVersion = '1.6.0'
 ext.githubProjectName = project.name
 group = 'com.netflix.post2crucible'
 
-buildscript {
-  repositories {
-    mavenCentral()
-    //maven { url 'http://repo.smokejumperit.com' }
-    flatDir { dirs '../../RobertFischer/gradle-plugins/build/libs' }
-  }
-  dependencies {
-    classpath 'com.smokejumperit:gradle-plugins:0.8.2+cq1'
-  }
-}
-
 apply from: file('gradle/convention.gradle')
 //apply from: file('gradle/check.gradle')
 //apply from: file('gradle/netflix-oss.gradle')
 //apply from: file('gradle/license.gradle') // Waiting for re-release
 //apply from: file('gradle/release.gradle') // Not fully tested
-
-apply plugin: 'sjit.onejar'
 
 jar {
     manifest {
@@ -44,6 +31,87 @@ dependencies {
     compile 'commons-httpclient:commons-httpclient:3.1'
     compile 'com.googlecode.java-diff-utils:diffutils:1.2.1'
     compile 'com.atlassian.connector:atlassian-connector-commons:4.0.0-mc2'
-
     runtime 'jaxen:jaxen:1.1.1'
+}
+
+project.rootProject.gradle.taskGraph.whenReady { graph ->
+    def oneJarTask = project.tasks.oneJar
+    if (oneJarTask && graph.hasTask(oneJarTask)) {
+        def jarTask = project.tasks.jar
+        if (!jarTask.manifest.attributes.containsKey('Main-Class')) {
+            throw new InvalidUserDataException("${oneJarTask.path} requires the manifest's Main-Class attribute to be set on ${jarTask.path}")
+        }
+    }
+}
+
+project.task('oneJar', dependsOn:project.tasks.jar) {
+    def jar = project.tasks.jar
+    File onejarFile = new File(jar.destinationDir, jar.archiveName - ('.' + jar.extension) + '-standalone.' + jar.extension)
+    description = 'Makes the fat jar file'
+    inputs.files(project.configurations.getByName('runtime'))
+    outputs.files onejarFile
+    doFirst {
+        ant.taskdef(name:'one-jar', classname:'com.simontuffs.onejar.ant.OneJarTask') {
+            classpath {
+                fileset(dir:'libs', includes:'one-jar-ant-task*.jar')
+            }
+        }
+        def runConf = [
+            project.configurations.getByName('runtime').resolve(),
+        ].flatten()
+        project.logger.debug("Runtime files to consider for OneJar (${runConf.size()}):\n  ${runConf.join('\n  ')}")
+
+        System.setProperty('one-jar.verbose', 'true')
+        System.setProperty('one-jar.info', 'true')
+        System.setProperty('one-jar.statistics', 'true')
+        System.setProperty('one-jar.show.properties', 'false')
+        def manifestFile = writeOneJarManifestFile(jar)
+
+        ant.'one-jar'(destFile:onejarFile.absolutePath, manifest:manifestFile.absolutePath) {
+            ant.main(jar:jar.archivePath.absolutePath) {
+                runConf.findAll { it.isDirectory() }.each { depDir ->
+                    project.logger.info("Adding ${depDir.absolutePath} to OneJar main")
+                    ant.fileset(dir:depDir.absolutePath)
+                }
+            }
+            project.sourceSets*.resources*.getSrcDirs()?.flatten()?.findAll { it?.exists() }?.each { resdir ->
+                project.logger.info("Adding ${resdir.absolutePath} to OneJar top-level (for resources)")
+                ant.fileset(dir:resdir.absolutePath)
+            }
+            ant.lib {
+                runConf.findAll { !it.isDirectory() }.each { depFile ->
+                    project.logger.info("Adding ${depFile.absolutePath} to OneJar lib")
+                    ant.fileset(file:depFile.absolutePath)
+                }
+            }
+        }
+
+        Date date = new Date()
+        project.artifacts.add('archives',
+            [
+                getClassifier: {-> 'standalone' },
+                getDate: {-> date },
+                getExtension: {-> 'jar' },
+                getType: {-> 'jar' },
+                getFile: {-> onejarFile },
+                getName: {-> jar.baseName }
+            ] as PublishArtifact
+        )
+    }
+}
+
+File writeOneJarManifestFile(jar) {
+    def manifestFile = File.createTempFile('one-jar-manifest', 'mf')
+    manifestFile.withWriter { writer ->
+        def manifest = jar.manifest.effectiveManifest
+        String main = manifest.attributes.remove('Main-Class')
+        if (main) {
+            manifest.attributes.put('One-Jar-Main-Class', main)
+        }
+        manifest.attributes.put('One-Jar-Show-Expand', false)
+        manifest.attributes.put('One-Jar-Confirm-Expand', false)
+        manifest.writeTo(writer)
+    }
+    manifestFile.deleteOnExit()
+    return manifestFile
 }
