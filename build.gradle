@@ -7,6 +7,8 @@ apply from: file('gradle/convention.gradle')
 //apply from: file('gradle/check.gradle')
 //apply from: file('gradle/license.gradle') // Waiting for re-release
 
+ext.kind = 'app'
+
 jar {
     manifest {
         attributes 'Main-Class': 'com.netflix.postreview.Main'

@@ -1,4 +1,5 @@
 
+ext.kind = 'lib'  // Default project kind to lib(rary). Alternate is app(lication). This determines publish repo.
 ext.performingRelease = project.hasProperty('release') && Boolean.parseBoolean(project.release)
 def versionPostfix = performingRelease?'':'-SNAPSHOT'
 

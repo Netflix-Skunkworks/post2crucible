@@ -1,0 +1,105 @@
+/**
+ * Establish simple Gradle practices which let an OSS gradle project play nice in the Netflix infrastructure
+ *
+ * 1. Establish artifactory repositories as sole repositories
+ * 2. Add in artfactory plugin
+ */
+import org.apache.ivy.plugins.resolver.FileSystemResolver;
+import org.apache.ivy.plugins.resolver.URLResolver;
+
+// Jenkins workspace
+def workspace = System.getenv()['WORKSPACE']
+if (workspace == null || workspace.trim().isEmpty()) {
+    workspace = System.getenv()['HOME']
+}
+
+// Establish "workspace friendly" ivy home, used for its cache.
+// We have to override Ivy's settings before we get too far into the process.
+// In OSS project, WORKSPACE is not likely the P4 workspace, but is the one for Jenkins, meaning that local builds
+// won't have WORKSPACE.
+def ivyHomeKey = 'ivy.default.ivy.user.dir'
+if (System.getProperty(ivyHomeKey) == null) {
+    // TODO Ensure workspace is a proper directory
+    System.setProperty(ivyHomeKey, workspace + '/.ivy2')
+}
+
+def artifactsBase = 'http://artifacts.netflix.com/'
+def ivyIvyPattern = '[organisation]/[module]/[revision]/[module]-[revision]-ivy.[ext]'
+def ivyArtifactPattern = '[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]'
+
+// Clean up all repositories to only include Netflix repos
+
+// When calling directly via -I use initscript
+// When calling via apply from, use buildscript
+buildscript {
+    repositories.clear()
+    repositories {
+        maven {  // Pulls from repo.jfrog.com and repo1, so it has a maven layout.
+            name 'build-gradle'
+            url 'http://artifacts.netflix.com/build-gradle'  // artifactsBase isn't available, because buildscript is executed by itself
+        }
+    }
+}
+
+allprojects {
+    // Ensure that only our "approved" repository is available while building
+    repositories.clear()
+    repositories {
+        def localPublishDir = new File("${workspace}/ivy2-local").absolutePath
+        add(new FileSystemResolver()) {
+            name = 'local'
+            addIvyPattern "${localPublishDir}/${ivyIvyPattern}"
+            addArtifactPattern "${localPublishDir}/${ivyArtifactPattern}"
+            checkmodified = true
+        }
+        // Public artifacts used by Netflix projects
+        add(new URLResolver()) {
+            name = "ext-releases-local"
+            def artifactsUrl = artifactsBase + name
+            addIvyPattern "${artifactsUrl}/${ivyIvyPattern}"
+            addArtifactPattern "${artifactsUrl}/${ivyArtifactPattern}"
+            m2compatible = true
+        }
+    }
+}
+
+buildscript {
+    dependencies {
+        classpath(group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '2.0.12')
+    }
+}
+
+allprojects {
+    apply plugin: org.jfrog.gradle.plugin.artifactory.ArtifactoryPlugin.class
+}
+
+rootProject {
+    // Internal Netflix Repository, to be published to
+    artifactory {
+        publish {
+            contextUrl = artifactsBase
+            // Put everything in defaults, so that it will be evaluated after the project. The project might set things like status,
+            // which we need for the repository. Defaults will delegate to artifactory.publish.
+            defaults {
+                repository {
+                    println "artifactory.gradle it:${it} project:${it.project} group:${it.project.group} name:${it.project.name} version:${it.project.version} ext:${it.project.ext} kind:${it.project.ext.kind}"
+                    repoKey = "${it.project.ext.kind}s-${it.project.status}s-local"  // The Artifactory repository key to publish to. Not sure if we're enforcing status correctly.
+                    ivy {
+                        ivyLayout = ivyIvyPattern
+                        artifactLayout = ivyArtifactPattern
+                        mavenCompatible = true  // Convert dots in [organization] to directory separators
+                    }
+                }
+                // build-info will ALWAYS use archives to build ivy, and will hence depends on uploadArchives no matterwhat
+                // Ideally, we're switch this to a custom config which extends from runtime
+                // Has to be a string, since we want to refer to the archives config for each child project
+                publishConfigs('archives')
+
+                properties = ['build.status': project.status.toString(), 'build.version': project.version]
+                publishPom = false  // Publish generated POM files to Artifactory (true by default)
+                publishIvy = true   // Publish generated Ivy descriptor files to Artifactory (true by default)
+            }
+        }
+    }
+}
+
