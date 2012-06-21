@@ -18,12 +18,6 @@ repositories {
     maven { url 'https://maven.atlassian.com/content/groups/public/' }  // for the atlassian connector commons library
 }
 
-artifacts {
-    archives jar
-    archives sourcesJar
-    archives javadocJar
-}
-
 dependencies {
     compile 'commons-cli:commons-cli:1.2'
     compile 'commons-httpclient:commons-httpclient:3.1'
