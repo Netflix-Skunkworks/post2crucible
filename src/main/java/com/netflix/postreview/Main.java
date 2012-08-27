@@ -68,7 +68,7 @@ public class Main {
                     .withDescription("Use a universal diff patch upload instead of full file pairs.").create())
 
                 .addOption(OptionBuilder.withLongOpt("open")
-                    .withDescription("Open a browser to new review. (Mac only)").create('o'))
+                    .withDescription("Open a browser to new review. (Mac/Win only)").create('o'))
 
                 .addOption(OptionBuilder.withLongOpt("new")
                     .withDescription("Force a new review to be created.").create());
@@ -291,7 +291,13 @@ public class Main {
             // Open a browser if requested.
             // TODO: This is for Mac, add support for Linux & Windows too.
             try {
-                 new Runner().start(new String[] { "open", reviewUrl });
+                String osName = System.getProperty("os.name");
+                System.out.println("Opening on osName: " + osName);
+                if (osName.startsWith("Windows")) {
+                    new Runner().start(new String[] { "rundll32", "url.dll,FileProtocolHandler", reviewUrl });
+                } else {
+                    new Runner().start(new String[] { "open", reviewUrl });
+                }
             } catch (IOException e) {
                 System.out.println("\nFatal: Problem opening URL: " + e.getMessage());
                 System.exit(1);
