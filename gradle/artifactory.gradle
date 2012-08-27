@@ -82,8 +82,8 @@ rootProject {
             // which we need for the repository. Defaults will delegate to artifactory.publish.
             defaults {
                 repository {
-                    println "artifactory.gradle it:${it} project:${it.project} group:${it.project.group} name:${it.project.name} version:${it.project.version} ext:${it.project.ext} kind:${it.project.ext.kind}"
-                    repoKey = "${it.project.ext.kind}s-${it.project.status}s-local"  // The Artifactory repository key to publish to. Not sure if we're enforcing status correctly.
+                    println "artifactory.gradle it:${it} project:${it.project} group:${it.project.group} name:${it.project.name} version:${it.project.version} ext:${it.project.ext} kind:${it.project.kind}"
+                    repoKey = "${it.project.kind}s-${it.project.status}s-local"  // The Artifactory repository key to publish to. Not sure if we're enforcing status correctly.
                     ivy {
                         ivyLayout = ivyIvyPattern
                         artifactLayout = ivyArtifactPattern

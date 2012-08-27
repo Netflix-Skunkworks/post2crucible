@@ -1,11 +1,12 @@
 // Establish version and status
-ext.releaseVersion = '1.6.0'
-ext.githubProjectName = project.name
+ext.githubProjectName = rootProject.name
 group = 'com.netflix.post2crucible'
 
 apply from: file('gradle/convention.gradle')
+apply from: file('gradle/maven.gradle')
 //apply from: file('gradle/check.gradle')
-//apply from: file('gradle/license.gradle') // Waiting for re-release
+apply from: file('gradle/license.gradle')
+apply from: file('gradle/release.gradle')
 
 ext.kind = 'app'
 
@@ -13,6 +14,11 @@ jar {
     manifest {
         attributes 'Main-Class': 'com.netflix.postreview.Main'
     }
+}
+
+buildscript {
+    repositories { mavenCentral() }
+    apply from: file('gradle/buildscript.gradle'), to: buildscript
 }
 
 repositories {
