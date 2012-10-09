@@ -1,6 +1,6 @@
 // Establish version and status
-ext.githubProjectName = rootProject.name
-group = 'com.netflix.post2crucible'
+ext.githubProjectName = rootProject.name // Change if github project name is not the same as the root project's name
+group = "com.netflix.${githubProjectName}"
 
 apply from: file('gradle/convention.gradle')
 apply from: file('gradle/maven.gradle')
