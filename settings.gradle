@@ -1,4 +1,0 @@
-// If we ran gradle -c <nebula/settings.gradle>, we could then programatically get the project name
-// from the dir without the branch part in a common script.
-
-rootProject.name = 'post2crucible'
