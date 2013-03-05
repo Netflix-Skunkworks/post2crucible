@@ -194,6 +194,7 @@ public class Main {
             System.out.println(change);
         } catch (Exception e) {
             System.out.println("\nFatal: " + e.getMessage());
+            e.printStackTrace(System.out);
             System.exit(-1);
             return;
         }
@@ -220,9 +221,11 @@ public class Main {
 
         } catch (RemoteApiException e) {
             System.out.println("\nFatal: Crucible communication problem: " + e.getMessage());
+            e.printStackTrace(System.out);
             System.exit(1);
         } catch (Exception e) {
             System.out.println("\nFatal: " + e);
+            e.printStackTrace(System.out);
             System.exit(-1);
         }
     }
@@ -234,6 +237,7 @@ public class Main {
             cru.login(opts.user, opts.passwd, opts.login);
         } catch (RemoteApiException e) {
             System.out.println("Fatal: Login problem: " + e.getMessage());
+            e.printStackTrace(System.out);
             System.exit(1);
         }
         return cru;
