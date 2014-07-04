@@ -44,7 +44,7 @@ public class Main {
             return new Options()
                 // Crucible connection options
                 .addOption(OptionBuilder.withLongOpt("url").hasArg().withArgName("url")
-                    .withDescription("Fisheye/Crucible base URL. (default: http://crucible.netflix.com)").create())
+                    .withDescription("Fisheye/Crucible base URL. (default: https://fisheye.netflix.com)").create())
                 .addOption(OptionBuilder.withLongOpt("user").hasArg().withArgName("name")
                     .withDescription("LDAP user. (default: $USER)").create('u'))
                 .addOption(OptionBuilder.withLongOpt("passwd").hasArg().withArgName("passwd")
@@ -127,7 +127,7 @@ public class Main {
             git = line.hasOption("git") ? line.getOptionValue("git", "/opt/local/bin/git") : null;
             dir = new File(line.getOptionValue("dir", ".")).getCanonicalFile();
 
-            url = line.getOptionValue("url", "http://crucible.netflix.com");
+            url = line.getOptionValue("url", "https://fisheye.netflix.com");
             user = line.getOptionValue("user", System.getenv("USER"));
             passwd = line.getOptionValue("passwd");
             login = line.hasOption("login");
